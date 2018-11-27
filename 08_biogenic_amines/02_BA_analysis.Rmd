@@ -1,0 +1,101 @@
+---
+title: "Biogenic amines"
+author: "Sander Wuyts"
+date: "14 September 2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(warning = FALSE)
+library(tidyverse)
+library(knitr)
+
+files <- str_c("out/", list.files("out/",  pattern = ".tsv")) 
+names(files) <- files
+
+ba <- map_df(files, read_tsv,
+                col_names = c("target_name","gene","percentage_identity","length","query_coverage"),
+                .id = "filename") %>%
+  separate(filename, "/", into = c("deleteme", "file"), fill = "right") %>%
+  separate(file, "\\.", into = c("Assembly", "deleteme3"), fill = "right") %>%
+  select(-deleteme, -deleteme3)
+
+# Read in clade info
+annotation <- read_tsv("~/serverUA/sander/carrot_isolates/06_phylogenetic_tree/visualise_tree/genomeTableSpeciesClades.tsv") 
+
+# Add annotation
+ba <- ba %>%
+  left_join(annotation) 
+```
+
+General hits
+
+```{r}
+ggplot(ba, aes(x = query_coverage, y = percentage_identity)) +
+  geom_point() +
+  facet_wrap(~target_name)
+```
+
+There seems to be hits in P00862 (histidine decarboxylase), P43099 + Q8RPX2 (Putrescine) and some in Q1JTV5 (phenylalanine/tyrosine decarboxylase). The others clearly not. Let's keep those hits only!
+
+```{r}
+ba_filtered <- ba %>%
+  filter(target_name %in% c("sp|P00862|DCHS_LACS3", "tr|Q1JTV5|Q1JTV5_ENTFC", "sp|Q8RPX2|AGUA_LACSS", "sp|P43099|DCOR_LACS3"))
+```
+
+General
+
+```{r}
+ba_filtered %>%
+  ggplot(aes(x = query_coverage, y = percentage_identity)) +
+  geom_point() +
+  facet_wrap(~target_name)
+```
+
+Let's explore some of this best hits. First for the histidine decarboxylase
+
+```{r}
+ba_filtered %>%
+  filter(target_name == "sp|P00862|DCHS_LACS3",
+         query_coverage > 75) %>%
+  arrange(-percentage_identity) %>%
+  kable()
+```
+
+Now the phenylalanine/tyrosine decarboxylase.
+
+```{r}
+ba_filtered %>%
+  filter(target_name == "tr|Q1JTV5|Q1JTV5_ENTFC",
+         query_coverage > 75) %>%
+  arrange(-percentage_identity) %>%
+  kable()
+```
+
+Now for the first pathway of putrescine production.
+
+```{r}
+ba_filtered %>%
+  filter(target_name == "sp|P43099|DCOR_LACS3",
+         query_coverage > 75,
+         percentage_identity > 50) %>%
+  arrange(-percentage_identity) %>%
+  kable()
+```
+
+
+```{r}
+ba_filtered %>%
+  filter(target_name == "sp|Q8RPX2|AGUA_LACSS",
+         query_coverage > 75,
+         percentage_identity > 50) %>%
+  arrange(-percentage_identity) %>%
+  kable()
+```
+
+
+Here we get pretty good hits, only in our brevis strains! These should thus be avoided to use as starter culture. None of the other strains seem to have a problem with biogenic amine production.
+
+
+
+

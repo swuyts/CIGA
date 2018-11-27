@@ -1,0 +1,238 @@
+---
+title: "ggtree"
+author: "Sander Wuyts"
+date: "13 September, 2018"
+output: html_document
+---
+
+```{r}
+library(tidyverse)
+packageVersion("tidyverse")
+library(ggtree)
+packageVersion("ggtree")
+library(stringr)
+packageVersion("stringr")
+library(phytools)
+library(ggpubr)
+```
+
+```{r}
+tree <- read.tree('~/serverUA/sander/carrot_isolates/06_phylogenetic_tree/raxml_out/RAxML_bipartitionsBranchLabels.carrotisolates')
+
+out_ex_tips_names <- c("GCA-001437015", "GCA-001438885")
+
+out_ex_tips <- which(tree$tip.label %in% out_ex_tips_names)
+out_mrca <- findMRCA(tree, tip = out_ex_tips)
+tree <- reroot(tree, node.number = out_mrca, position = 0.5)
+
+# Due to switching of chapters, remove L mudanjiangensis type strain
+tree <- drop.tip(tree, "L-Mudanjiangensis-DSM-28402")
+
+# Test ggtree
+p <- ggtree(tree) +  geom_tree()
+p
+```
+
+
+```{r}
+annotation <- read_tsv("~/serverUA/sander/carrot_isolates/03_quality_control/genomeTable_full.tsv") %>%
+  filter(useGenome == T) %>%
+  select(Assembly, genus, species, strain, Labname, fromNCBI, inLGC) %>%
+  mutate(Assembly = str_replace(Assembly, "GCA_", "GCA-")) %>%
+  mutate(strain = str_replace_all(strain, " ", "~")) %>%
+  mutate(genus = if_else(genus == "isolate", "", genus),
+         species = if_else(species == "isolate", "", species),
+         strain = if_else(strain == "isolate", Labname, strain)) %>%
+  filter(Assembly != "L-Mudanjiangensis-DSM-28402" ) %>%
+  mutate(strain = str_replace(strain, "AMB-F", "AMBF"))
+```
+
+Define colours
+
+```{r}
+colourSpecies <- c(isolate = "#1b9e77",
+                   NCBIrefgenome= "black",
+                   inhousRefgenome = "black")
+```
+
+
+```{r, fig.height= 10, fig.width= 8}
+tree_plot <- ggtree(tree, layout = "circular") %<+% 
+  annotation +
+  geom_tiplab2(aes(col = fromNCBI, label = paste0('italic(', genus ,')~italic(', species, ')~', strain)), size = 1, parse = TRUE) +
+  scale_color_manual(values = colourSpecies) +
+  theme(plot.margin = unit(c(0,0,0,0), "mm")) +
+  xlim(-3,3)
+
+tree_plot
+
+ggsave("tree.svg", width = 10, height = 10 )
+ggsave("tree.png", width = 20, height = 20, units = "cm")
+#ggsave("results/tree.png", bg = "transparent")
+
+```
+
+# ANI-analysis
+
+```{r}
+ANI <- read_tsv("../../07_ANI/pyani_output/ANIb/ANIb_percentage_identity.tab") %>%
+  rename(genome1 = X1) %>%
+  gather("genome2", "identity", - genome1) %>% 
+  filter(genome1 != "L-Mudanjiangensis-DSM-28402", # Remove mudan typestrain
+        genome2 != "L-Mudanjiangensis-DSM-28402") %>%
+  left_join(annotation %>% rename(genome1 = Assembly) %>% select(genome1, Labname)) %>%
+  rename(genome1_labname = Labname) %>%
+  left_join(annotation %>% rename(genome2 = Assembly) %>% select(genome2, Labname)) %>%
+  rename(genome2_labname = Labname) %>%
+  mutate(genome1_labname = if_else(is.na(genome1_labname), genome1, genome1_labname),
+         genome2_labname = if_else(is.na(genome2_labname), genome2, genome2_labname)) %>%
+  select(-genome1, -genome2) %>%
+  mutate_all(str_replace, "AMB-F", "AMBF") %>%
+  mutate(identity = as.numeric(identity))
+```
+
+Define the groups manually based on the three
+
+```{r}
+# Brevis
+brevis <- c("AMBF185", "AMBF187", "AMBF300", "AMBF200", "AMBF162", "AMBF189", "AMBF298", "AMBF191", "AMBF181", "AMBF201","AMBF244" , "AMBF221", "AMBF192", "AMBF229", "AMBF237", "AMBF253", "AMBF158", "AMBF156", "AMBF212", "GCA_001433855")
+
+# Plantarum
+plantarum <- c("AMBF255", "AMBF259", "AMBF235", "AMBF261", "AMBF245", "AMBF257", "AMBF220", "AMBF241", "AMBF225", "AMBF227", "AMBF277", "AMBF247", "AMBF239", "AMBF263", "AMBF206", "AMBF251", "AMBF294", "AMBF292", "AMBF205", "AMBF264", "AMBF207", "GCA_001435215", "GCA_001436855", "GCA_000203855", "GCA_001434175")
+
+# Paraplantarum
+paraplantarum <- c("AMBF279", "GCA_001435655")
+
+# Unkown1
+unkown1 <- c("AMBF275")
+
+# Unkown 2
+unkown2 <- c("AMBF197", "AMBF198", "AMBF249", "AMBF209")
+
+# mudanjiangensis
+#mudanjiangensis <- c("AMBF197", "AMBF198", "AMBF209", "AMBF249", "L-Mudanjiangensis-DSM-28402")
+
+# citreum
+citreum <- c("AMBF231", "GCA_000026405")
+
+# mesenteroides
+mesenteroides <- c("AMBF166", "AMBF114", "AMBF164", "AMBF160", "GCA_000014445")
+
+# paracasei
+paracasei <- c("AMBF302", "AMBF196", "AMBF203", "GCA_000014525", "GCA_001436385", "GCA_001436485", "GCA_001433735")
+
+genomesofinterest <- tibble(genome = c(brevis, plantarum, paraplantarum, unkown1, unkown2, citreum, mesenteroides, paracasei),
+                           species = c(rep("brevis", length(brevis)), rep("plantarum", length(plantarum)), rep("paraplantarum", length(paraplantarum)), rep("Unclassified 1", length(unkown1)), rep("Unclassified 2", length(unkown2)), rep("citreum", length(citreum)), rep("mesenteroides", length(mesenteroides)), rep("paracasei", length(paracasei))))
+```
+
+```{r}
+ANI_species <- ANI %>%
+  left_join(genomesofinterest %>% rename(genome1_labname = genome)) %>%
+  rename(genome1_species = species) %>%
+  left_join(genomesofinterest %>% rename(genome2_labname = genome)) %>%
+  rename(genome2_species = species) %>%
+  replace_na(list(genome1_species = "none", 
+             genome2_species = "none")) %>%
+  mutate(comparison = ifelse(genome2_species == genome1_species, "Intraspecies", "Interspecies")) %>%
+  filter(!(genome1_species == "none" & genome1_species == genome2_species)) %>%
+  filter(!(genome2_species == "none")) %>%
+  filter(genome1_labname != genome2_labname)
+
+ANI_summary <- ANI_species %>% 
+  filter(genome1_species == genome2_species) %>%
+  select(- genome2_species) 
+
+ANI_summary %>%
+  group_by(genome1_species) %>%
+  summarise(minANI = min(identity), meanANI = mean(identity))
+```
+
+
+```{r fig.height = 8 , fig.width = 8}
+ggplot(ANI_species, aes(x = identity, fill = comparison, colour = comparison)) +
+  geom_density(aes(y = ..scaled..), alpha = 0.8) +
+  scale_color_brewer(palette = "Dark2") + 
+  scale_fill_brewer(palette = "Dark2") +
+  geom_vline(xintercept = 0.95, colour = "red") +
+  facet_wrap(~genome2_species, scales = "free_y", nrow = 9)  +
+  ylab("Density") +
+  theme(legend.title = element_blank(),
+                strip.background = element_blank()) +
+  ggtitle("Pairwise ANI comparisons")
+```
+
+# Alternative visualization
+
+```{r}
+speciesnames <- c("brevis" = "Lactobacillus brevis",
+             "citreum" = "Leuconostoc citreum",
+             "mesenteroides" = "Leuconostoc mesenteroides",
+             "mudanjiangensis" = "Lactobacillus mudanjiangensis",
+             "paracasei" = "Lactobacillus paracasei",
+             "paraplantarum" = "Lactobacillus paraplantarum",
+             "plantarum" = "Lactobacillus plantarum",
+             "unkown2" = "Unclassified 2",
+             "unkown1" = "Unclassified 1")
+
+
+ANI_plot <- ANI_species %>%
+  mutate(genome2_species =  fct_rev(fct_recode(genome2_species,
+             "brevis" = "Lactobacillus brevis",
+             "citreum" = "Leuconostoc citreum",
+             "mesenteroides" = "Leuconostoc mesenteroides",
+             "mudanjiangensis" = "Lactobacillus mudanjiangensis",
+             "paracasei" = "Lactobacillus paracasei",
+             "paraplantarum" = "Lactobacillus paraplantarum",
+             "plantarum" = "Lactobacillus plantarum",
+             "unkown2" = "Unclassified 2",
+             "unkown1" = "Unclassified 1"))) %>%
+  ggplot(aes(x = genome2_species,  y = identity, colour = comparison, group = comparison)) + 
+  geom_jitter(alpha= 0.6, width= 0.2) +
+  geom_hline(aes(yintercept = 0.95),  colour = "red") +
+  scale_x_discrete(labels = speciesnames) + 
+  scale_color_brewer(palette = "Dark2") +
+  xlab("") +
+  ylab("Average nucleotide identity (ANI)") +
+  coord_flip() + 
+  theme_bw() +
+  theme(axis.title.x = element_text(size = 14, face = "bold"),
+        axis.text.y = element_text(angle = 0, size = 11,
+                                   face = c("bold", "bold", rep("bold.italic", 6))),
+        legend.title = element_blank(),
+        legend.position = "right")
+
+ANI_plot
+
+
+```
+
+# ANI and tree together
+
+```{r fig.height=8, fig.width=8}
+ggarrange(tree_plot,
+          ANI_plot,
+          nrow = 2,
+          heights = c(4,1.1),
+          labels = "AUTO")
+
+
+ggsave("tree_ANI.png", units = "cm", width = 21, height = 29.7)
+ggsave("tree_ANI.svg", units = "cm", width = 21, height = 29.7)
+
+```
+
+# Save the genomeTable with new speciesnames
+
+```{r}
+annotation %>%
+  left_join(genomesofinterest %>% rename(strain = genome,
+                                         speciesClade = species)) %>%
+  mutate(Assembly = str_replace_all(Assembly, "GCA-", "GCA_")) %>%
+  left_join(genomesofinterest %>% rename(Assembly = genome,
+                                         speciesClade2 = species)) %>%
+  mutate(speciesClade = if_else(!is.na(speciesClade2), speciesClade2, speciesClade)) %>%
+  select(-speciesClade2) %>%
+  write_tsv("genomeTableSpeciesClades.tsv")
+```
+
+

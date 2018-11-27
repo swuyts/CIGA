@@ -1,0 +1,785 @@
+---
+title: "GT and GH analysis"
+author: "Sander Wuyts"
+date: "22 September 2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(warning = FALSE)
+library(plyr)
+library(tidyverse)
+library(knitr)
+library(rhmmer)
+library(ggtree)
+library(phytools)
+library(RColorBrewer)
+library(egg)
+library(scales)
+
+files <- str_c("out/", list.files("out/",  pattern = "parsed.tsv")) 
+names(files) <- files
+
+dbcan <- map_df(files,
+                read_tsv,
+                col_names = c("queryName", "queryLength", "HMM", "HMMLength", "evalue", "HMMStart", "HMMEnd", "queryStart", "queryEnd", "coverage") ,
+                .id = "filename") %>%
+  separate(filename, "/", into = c("deleteme4", "file"), fill = "right") %>%
+  separate(file, "\\.", into = c("Assembly", "deleteme5"), fill = "right") %>%
+  select(-starts_with("deleteme")) %>%
+  mutate(Assembly = str_replace(Assembly, "_parsed", "")) %>%
+  filter(Assembly != "L-Mudanjiangensis-DSM-28402") %>% # Remove mudan type strain due to chapter order
+  mutate(Assembly = str_replace(Assembly, "AMB-F", "AMBF"))
+
+
+# Read in clade info
+annotation <- read_tsv("~/serverUA/sander/carrot_isolates/06_phylogenetic_tree/visualise_tree/genomeTableSpeciesClades.tsv") %>%
+  mutate(genus = if_else(is.na(genus), "", genus),
+         species = if_else(is.na(species), "", species),
+         strain = if_else(is.na(strain), Labname, strain)) %>%
+  mutate(Assembly = str_replace(Assembly, "AMB-F", "AMBF"))
+
+
+# Add annotation
+dbcan <- dbcan %>%
+  left_join(annotation) %>%
+  mutate(queryName = str_replace(queryName, ".hmm", ""))
+```
+
+# Read in tree
+
+```{R}
+tree <- read.tree('~/serverUA/sander/carrot_isolates/06_phylogenetic_tree/raxml_out/RAxML_bestTree.carrotisolates')
+
+# Root tree
+out_ex_tips_names <- c("GCA-001437015", "GCA-001438885")
+
+out_ex_tips <- which(tree$tip.label %in% out_ex_tips_names)
+out_mrca <- findMRCA(tree, tip = out_ex_tips)
+tree <- reroot(tree, node.number = out_mrca, position = 0.5)
+
+p <- ggtree(tree) +  geom_tree()
+p
+
+# Get the label order
+d <- fortify(tree)
+dd <- subset(d, isTip)
+order <- dd$label[order(dd$y,decreasing=T)] %>%
+  str_replace("GCA-", "GCA_")
+```
+
+
+# General hits
+
+```{r}
+ggplot(dbcan, aes(x = evalue, y = coverage)) +
+  geom_point() +
+  scale_x_log10() +
+  geom_vline(xintercept = 1e-15,
+             yintercept = 0.35)
+```
+
+# Filter
+
+Apply dbCAN cutoff
+
+```{r}
+dbcan_filtered <- dbcan %>%
+  filter(evalue < 1e-15,
+         coverage > 0.35) %>%
+  mutate(Assembly = as_factor(Assembly),
+         Assembly = fct_relevel(Assembly, order))
+```
+
+# How many per genome
+
+```{r fig.height=12, fig.width=8}
+dbcan_filtered %>%
+  add_count(Assembly) %>%
+  select(Assembly, speciesClade, n) %>%
+  distinct() %>%
+  mutate(speciesClade = if_else(is.na(speciesClade), "Z other", speciesClade)) %>%
+  ggplot(aes(x = Assembly, y = n, fill = speciesClade)) +
+  geom_col() +
+  coord_flip() +
+  scale_fill_brewer(palette = "Paired")
+```
+
+# GHs only
+
+```{r fig.height=12, fig.width=8}
+dbcan_filtered %>%
+  filter(str_detect(queryName, "GH")) %>%
+  add_count(Assembly) %>%
+  select(Assembly, speciesClade, n) %>%
+  distinct() %>%
+  mutate(speciesClade = if_else(is.na(speciesClade), "Z other", speciesClade)) %>%
+  ggplot(aes(x = Assembly, y = n, fill = speciesClade)) +
+  geom_col() +
+  coord_flip() +
+  scale_fill_brewer(palette = "Paired")
+```
+
+Heatmap all
+ 
+```{r fig.height=12, fig.width=8}
+GH_heatmap <- dbcan_filtered %>%
+  filter(str_detect(queryName, "GH")) %>%
+  select(Assembly, queryName) %>%
+  add_count(Assembly, queryName) %>%
+  distinct() %>%
+  spread(key = queryName, value = n) %>%
+  replace(is.na(.), 0) %>%
+  as.data.frame()
+
+rownames(GH_heatmap) <- GH_heatmap$Assembly %>%
+  str_replace_all("GCA_","GCA-")
+
+GH_heatmap <- GH_heatmap %>% select(-Assembly)
+
+gheatmap(p, GH_heatmap, width=15, colnames = T, color=NA,offset=0.1) + 
+  ggtitle("GH") + 
+  scale_fill_gradient(high="#132B43",low="#56B1F7") 
+```
+
+Only isolates
+
+```{r fig.height=8, fig.width=8}
+dbcan_filtered %>%
+  filter(!is.na(speciesClade)) %>%
+  filter(str_detect(queryName, "GH")) %>%
+  add_count(Assembly) %>%
+  select(Assembly, speciesClade, n) %>%
+  distinct() %>%
+  ggplot(aes(x = Assembly, y = n, fill = speciesClade)) +
+  geom_col() +
+  coord_flip() +
+  scale_fill_brewer(palette = "Paired")
+```
+
+Isolates only heatmap. This code is extremely ugly. Needs cleaning up.
+
+```{r fig.height=12, fig.width=8}
+plotdf <- dbcan_filtered %>%
+  filter(str_detect(queryName, "GH"),
+         !is.na(speciesClade)) %>%
+  select(Assembly, queryName, speciesClade) %>%
+  add_count(Assembly, queryName) %>%
+  distinct() %>%
+  spread(queryName, n) %>%
+  replace(is.na(.), 0) %>%
+  gather(key = "queryName", value = 'n', -Assembly, -speciesClade) %>%
+  mutate(value = cut(n,
+                     breaks = c(-Inf,0, 2, 4, 6, 8, 10, Inf),
+                     labels = c("0","1 - 2","2 - 4", "4 - 6","6 - 8", "8 - 10", ">10"))) %>% # Convert to discrete
+  mutate(value = factor(as.character(value), levels=rev(levels(value)))) 
+
+# Label formatting of y-axis
+myLabels <- plotdf %>%
+  left_join(annotation) %>%
+  mutate(Name = paste0('italic(', genus ,')~italic(', species, ')~', strain)) %>%
+  pull(Name) %>%
+  unique 
+
+# Map labels to new variable
+plotdf$Assembly_renamed <- mapvalues(plotdf$Assembly, unique(plotdf$Assembly),
+                                  parse(text = myLabels))
+
+# Reorder the speciesClades according to phylogeny
+speciesCladeOrder <- tibble(Assembly = order) %>%
+  left_join(annotation %>% select(Assembly, speciesClade)) %>%
+  filter(!is.na(speciesClade)) %>%
+  pull(speciesClade) %>%
+  unique() 
+
+plotdf <- plotdf %>%
+  mutate(speciesClade = factor(speciesClade, levels = speciesCladeOrder))
+
+# Reorder queryName
+queryNameorder <- plotdf %>%
+  mutate(Number = str_replace_all(queryName, "GH", "")) %>%
+  separate(Number, into= c("Number", "Number2")) %>%
+  mutate(Number = as.integer(Number)) %>%
+  arrange(Number, Number2) %>%
+  pull(queryName) %>%
+  unique()
+
+plotdf <- plotdf %>%
+  mutate(queryName = factor(queryName, levels = queryNameorder))
+
+# Finally plot
+heatmap <- plotdf %>%
+  
+  ggplot(aes(x  = queryName, y = Assembly_renamed, fill = value)) +
+  geom_tile(colour = "white", size = 0.25) +
+  labs(x = "", y = "") +
+  facet_grid(speciesClade~., scales = "free_y", space = "free_y") +
+  scale_y_discrete(expand=c(0,0), labels = function(x) parse(text = x)) +
+  #scale_fill_manual(values=c("#d53e4f","#f46d43","#fdae61", "#fee08b","#e6f598","#abdda4","#ddf1da")) +
+  scale_fill_manual(values=rev(brewer.pal(7,"YlGnBu"))) +
+  theme_grey(base_size=8) +
+  #ggtitle("Glycosyl hydrolases") +
+  guides(fill = guide_legend(nrow = 1, label.position = "bottom", label.vjust = -0.2, reverse = T)) +
+  theme(
+    #remove legend title
+    legend.title=element_blank(),
+    #remove legend margin
+    legend.margin = grid::unit(0,"cm"),
+    #change legend text properties
+    legend.text=element_text(size=7,face="bold"),
+    #change legend key height
+    legend.key.height=grid::unit(0.2,"cm"),
+    #set a slim legend
+    legend.key.width=grid::unit(0.8,"cm"),
+    legend.position = "bottom",
+    #set x axis text size and colour
+    axis.text.x=element_text(size=6, angle = 90, hjust = 1, vjust = 0.5),
+    #set y axis text colour and adjust vertical justification
+    axis.text.y=element_text(size = 8, vjust = 0.2, margin = margin(r = 5)),
+    #change axis ticks thickness
+    axis.ticks=element_line(size=0.4),
+    #change title font, size, colour and justification
+    plot.title=element_text(hjust=0,size=14,face="bold"),
+    #remove plot background
+    plot.background=element_blank(),
+    #remove plot border
+    panel.border=element_blank(),
+    #remove facet_grid boxes
+    strip.background = element_blank(),
+    #remove facet_grid text
+    strip.text.y = element_blank(),
+    plot.margin = unit(c(0,0,0,0), "cm"))
+
+heatmap
+```
+Bar grahps
+
+```{r}
+barplotY <- plotdf %>%
+  group_by(Assembly_renamed, speciesClade) %>%
+  summarize(sum = sum(n)) %>%
+  ggplot(aes(x = Assembly_renamed, y = sum)) +
+  geom_col(fill = "#d95f02", alpha = 0.8) +
+  facet_grid(speciesClade~., scales = "free_y", space = 'free_y') + 
+  coord_flip() +
+  xlab("") +
+  ylab("# of GH") +
+  theme_minimal() + 
+  scale_y_continuous(expand = c(0,0)) +
+  theme(axis.text.y = element_blank(),
+        axis.ticks.y = element_blank(),
+        axis.text.x = element_text(size = 6, angle = 90, hjust = 1, vjust = 0.5),
+        strip.text = element_blank(),
+        panel.grid.major.y = element_blank(),
+        panel.grid.minor.x = element_blank())
+
+barplotY
+```
+
+```{r}
+barplotX <- plotdf %>%
+  group_by(queryName) %>%
+  summarize(sumX = sum(n)) %>%
+  ggplot(aes(x = queryName, y = sumX)) +
+  geom_col(fill = "#d95f02", alpha = 0.8) +
+  xlab("") +
+  ylab("# of GH") +
+  ggtitle("Glycosyl hydrolases") +
+  theme_minimal() + 
+  theme(axis.text.x = element_blank(),
+        axis.ticks.y = element_blank(),
+        axis.text.y = element_text(size = 6),
+        strip.text = element_blank(),
+        panel.grid.major.x = element_blank(),
+        panel.grid.minor.y = element_blank(),
+        plot.margin = unit(c(0,0,0,0), "cm"),
+        plot.title=element_text(hjust=0,size=14,face="bold"))
+
+barplotX
+```
+
+Add bargraphs. 
+
+```{r fig.height=12, fig.width=8}
+ggempty <- plotdf %>%
+  ggplot(aes(x = queryName, y = n)) +
+  geom_blank() +
+  labs(x="", y="") +
+  theme(panel.background = element_blank(),
+        axis.ticks = element_blank(),
+        axis.text = element_blank())
+
+GHS <- ggarrange(barplotX,
+          ggempty,
+          heatmap,
+          barplotY,
+          ncol = 2,
+          nrow = 2,
+          widths = c(6,1),
+          heights = c(1,8),
+          padding = unit(0, "cm"))
+GHS
+
+ggsave("GHs.pdf",GHS, units = "cm", width = 21, height = 29.7)
+```
+
+
+
+Number of different GHs
+
+```{r}
+dbcan_filtered %>%
+  filter(str_detect(queryName, "GH"),
+                  !is.na(speciesClade)) %>%
+  separate(queryName, into= c("queryName", "Number2")) %>%
+  pull(queryName) %>%
+  unique() %>%
+  length
+```
+
+Sum ranges
+
+```{r}
+plotdf %>%
+  group_by(Assembly_renamed, speciesClade) %>%
+  summarize(sum = sum(n)) %>%
+  group_by(speciesClade) %>%
+  summarize(minSum = min(sum), maxSum = max(sum)) %>%
+  arrange(-maxSum)
+```
+
+Sum cols
+
+```{r}
+plotdf %>%
+  group_by(queryName) %>%
+  summarize(sum = sum(n)) %>%
+  arrange(-sum)
+```
+
+# GTs only
+
+```{r fig.height=12, fig.width=8}
+dbcan_filtered %>%
+  filter(str_detect(queryName, "GT")) %>%
+  add_count(Assembly) %>%
+  select(Assembly, speciesClade, n) %>%
+  distinct() %>%
+  mutate(speciesClade = if_else(is.na(speciesClade), "Z other", speciesClade)) %>%
+  ggplot(aes(x = Assembly, y = n, fill = speciesClade)) +
+  geom_col() +
+  coord_flip() +
+  scale_fill_brewer(palette = "Paired")
+```
+Only isolates
+
+```{r fig.height=8, fig.width=8}
+dbcan_filtered %>%
+  filter(!is.na(speciesClade)) %>%
+  filter(str_detect(queryName, "GT")) %>%
+  add_count(Assembly) %>%
+  select(Assembly, speciesClade, n) %>%
+  distinct() %>%
+  ggplot(aes(x = Assembly, y = n, fill = speciesClade)) +
+  geom_col() +
+  coord_flip() +
+  scale_fill_brewer(palette = "Paired")
+```
+Isolates only heatmap. This code is extremely ugly. Needs cleaning up.
+
+```{r fig.height=12, fig.width=8}
+plotdf <- dbcan_filtered %>%
+  filter(str_detect(queryName, "GT"),
+         !is.na(speciesClade)) %>%
+  select(Assembly, queryName, speciesClade) %>%
+  add_count(Assembly, queryName) %>%
+  distinct() %>%
+  spread(queryName, n) %>%
+  replace(is.na(.), 0) %>%
+  gather(key = "queryName", value = 'n', -Assembly, -speciesClade) %>%
+  mutate(value = cut(n,
+                     breaks = c(-Inf,0, 2, 4, 6, 8, 10, Inf),
+                     labels = c("0","1 - 2","2 - 4", "4 - 6","6 - 8", "8 - 10", ">10"))) %>% # Convert to discrete
+  mutate(value = factor(as.character(value), levels=rev(levels(value)))) 
+
+# Label formatting of y-axis
+myLabels <- plotdf %>%
+  left_join(annotation) %>%
+  mutate(Name = paste0('italic(', genus ,')~italic(', species, ')~', strain)) %>%
+  pull(Name) %>%
+  unique 
+
+# Map labels to new variable
+plotdf$Assembly_renamed <- mapvalues(plotdf$Assembly, unique(plotdf$Assembly),
+                                  parse(text = myLabels))
+
+# Reorder the speciesClades according to phylogeny
+speciesCladeOrder <- tibble(Assembly = order) %>%
+  left_join(annotation %>% select(Assembly, speciesClade)) %>%
+  filter(!is.na(speciesClade)) %>%
+  pull(speciesClade) %>%
+  unique() 
+
+plotdf <- plotdf %>%
+  mutate(speciesClade = factor(speciesClade, levels = speciesCladeOrder))
+
+# Reorder queryName
+queryNameorder <- plotdf %>%
+  mutate(Number = str_replace_all(queryName, "GT", "")) %>%
+  separate(Number, into= c("Number", "Number2")) %>%
+  mutate(Number = as.integer(Number)) %>%
+  arrange(Number, Number2) %>%
+  pull(queryName) %>%
+  unique()
+
+plotdf <- plotdf %>%
+  mutate(queryName = factor(queryName, levels = queryNameorder))
+
+# Finally plot
+heatmap <- plotdf %>%
+  
+  ggplot(aes(x  = queryName, y = Assembly_renamed, fill = value)) +
+  geom_tile(colour = "white", size = 0.25) +
+  labs(x = "", y = "") +
+  facet_grid(speciesClade~., scales = "free_y", space = "free_y") +
+  scale_y_discrete(expand=c(0,0), labels = function(x) parse(text = x)) +
+  #scale_fill_manual(values=c("#d53e4f","#f46d43","#fdae61", "#fee08b","#e6f598","#abdda4","#ddf1da")) +
+  scale_fill_manual(values=rev(brewer.pal(7,"YlGnBu"))) +
+  theme_grey(base_size=8) +
+  #ggtitle("Glycosyl hydrolases") +
+  guides(fill = guide_legend(nrow = 1, label.position = "bottom", label.vjust = -0.2, reverse = T)) +
+  theme(
+    #remove legend title
+    legend.title=element_blank(),
+    #remove legend margin
+    legend.margin = grid::unit(0,"cm"),
+    #change legend text properties
+    legend.text=element_text(size=7,face="bold"),
+    #change legend key height
+    legend.key.height=grid::unit(0.2,"cm"),
+    #set a slim legend
+    legend.key.width=grid::unit(0.8,"cm"),
+    legend.position = "bottom",
+    #set x axis text size and colour
+    axis.text.x=element_text(size=8, angle = 90, hjust = 1, vjust = 0.5),
+    #set y axis text colour and adjust vertical justification
+    axis.text.y=element_text(size = 8, vjust = 0.2, margin = margin(r = 5)),
+    #change axis ticks thickness
+    axis.ticks=element_line(size=0.4),
+    #change title font, size, colour and justification
+    plot.title=element_text(hjust=0,size=14,face="bold"),
+    #remove plot background
+    plot.background=element_blank(),
+    #remove plot border
+    panel.border=element_blank(),
+    #remove facet_grid boxes
+    strip.background = element_blank(),
+    #remove facet_grid text
+    strip.text.y = element_blank(),
+    plot.margin = unit(c(0,0,0,0), "cm"))
+
+heatmap
+```
+Bar grahps
+
+```{r}
+barplotY <- plotdf %>%
+  group_by(Assembly_renamed, speciesClade) %>%
+  summarize(sum = sum(n)) %>%
+  ggplot(aes(x = Assembly_renamed, y = sum)) +
+  geom_col(fill = "#d95f02", alpha = 0.8) +
+  facet_grid(speciesClade~., scales = "free_y", space = 'free_y') + 
+  coord_flip() +
+  xlab("") +
+  ylab("# of GT") +
+  theme_minimal() + 
+  theme(axis.text.y = element_blank(),
+        axis.ticks.y = element_blank(),
+        axis.text.x = element_text(size = 6, angle = 90, hjust = 1, vjust = 0.5),
+        strip.text = element_blank(),
+        panel.grid.major.y = element_blank(),
+        panel.grid.minor.x = element_blank(),
+        plot.margin = unit(c(0,0,0,0), "cm"))
+
+barplotY
+```
+
+```{r}
+barplotX <- plotdf %>%
+  group_by(queryName) %>%
+  summarize(sumX = sum(n)) %>%
+  ggplot(aes(x = queryName, y = sumX)) +
+  geom_col(fill = "#d95f02", alpha = 0.8) +
+  xlab("") +
+  ylab("# of GT") +
+  ggtitle("Glycosyltransferases") +
+  theme_minimal() + 
+  theme(axis.text.x = element_blank(),
+        axis.ticks.y = element_blank(),
+        axis.text.y = element_text(size = 6),
+        strip.text = element_blank(),
+        panel.grid.major.x = element_blank(),
+        panel.grid.minor.y = element_blank(),
+        plot.margin = unit(c(0,0,0,0), "cm"),
+        plot.title=element_text(hjust=0,size=14,face="bold"))
+
+barplotX
+```
+
+Add bargraphs. 
+
+```{r fig.height=12, fig.width=8}
+ggempty <- plotdf %>%
+  ggplot(aes(x = queryName, y = n)) +
+  geom_blank() +
+  labs(x="", y="") +
+  theme(panel.background = element_blank(),
+        axis.ticks = element_blank(),
+        axis.text = element_blank())
+
+ggarrange(barplotX,
+          ggempty,
+          heatmap,
+          barplotY,
+          ncol = 2,
+          nrow = 2,
+          widths = c(6,1),
+          heights = c(1,8)) +
+  theme(plot.margin = unit(c(0,0,0,0), "cm"))
+```
+
+Number of different GTs
+
+```{r}
+dbcan_filtered %>%
+  filter(str_detect(queryName, "GT"),
+                  !is.na(speciesClade)) %>%
+  separate(queryName, into= c("queryName", "Number2")) %>%
+  pull(queryName) %>%
+  unique() %>%
+  length
+```
+
+Sum ranges
+
+```{r}
+plotdf %>%
+  group_by(Assembly_renamed, speciesClade) %>%
+  summarize(sum = sum(n)) %>%
+  group_by(speciesClade) %>%
+  summarize(minSum = min(sum), maxSum = max(sum)) %>%
+  arrange(-maxSum)
+```
+
+Sum cols
+
+```{r}
+plotdf %>%
+  group_by(queryName) %>%
+  summarize(sum = sum(n)) %>%
+  arrange(-sum)
+```
+
+# Cluster analysis GTs
+
+```{r}
+gene_coordinates <- read.table("out_geneTables/geneTable_allGenomes.tsv", sep = ' ', col.names = c("contig", "genome", "start", "end", "strand", "gene")) %>%
+  mutate(genome = str_replace(genome, "AMB-F", "AMBF")) %>%
+  filter(genome %in% (dbcan_filtered %>% filter(!is.na(speciesClade)) %>% pull(Assembly))) %>%
+  mutate(gene = str_sub(gene, 4, -1)) 
+
+```
+
+
+```{r}
+GTs <- dbcan_filtered %>%
+  filter(str_detect(queryName, "GT"),
+         !is.na(speciesClade)) %>%
+  rename(gene = HMM) %>%
+  left_join(gene_coordinates) %>%
+  mutate(geneNumber = gene) %>%
+  separate(geneNumber, into = c("X", "geneNumber")) %>%
+  select(-X)
+```
+
+```{r, fig.height=12, fig.width=12}
+ggplot(GTs, aes(x = geneNumber, y = genome)) +
+  geom_point() +
+  facet_grid(speciesClade~., scales = "free_y", space = "free_y") 
+```
+
+We will first look at the dispersion of GTs. How far are they away from each othe?
+
+```{r}
+GTs %>%
+  group_by(contig) %>%
+  mutate(diffToPrev = as.numeric(geneNumber) - as.numeric(lag(geneNumber)),
+         difftoNext = as.numeric(lead(geneNumber)) - as.numeric(geneNumber)) %>%
+  filter(diffToPrev < 50,
+         difftoNext < 50) %>%
+  gather(key = "key", value = "difference", starts_with("diffto")) %>%
+  ggplot(aes(x = difference, fill = key)) +
+  geom_density() +
+  facet_wrap(~key, nrow = 2, scales = "free")
+
+```
+
+The majority of them show a difference of 1, meaning they have a GT close by. In addition, 10 might be a good cut off to use here. So here we will cluster all GTs together if they are at maximum 10 genes apart.
+
+
+```{r}
+# Set cutoff
+cutoff <- 10
+
+# Initiate table
+clustersdf <- tibble(contig = character(), genes = character())
+
+for (Contig in as.character(unique(GTs$contig))) {
+  geneNumbers <- GTs %>%
+    filter(contig == Contig) %>%
+    pull(geneNumber) %>%
+    as.numeric()
+  
+  clusters <- list(c(geneNumbers[1]))
+  
+  if (length(geneNumbers) > 1) {
+    for (i in 2:length(geneNumbers)) {
+      el <- geneNumbers[i]
+      
+      d <- el - geneNumbers[i - 1]
+      
+      if (d < cutoff) {
+        clusters[[length(clusters)]] <- c(clusters[[length(clusters)]], el)
+      } else {
+        clusters[[length(clusters) + 1]] <- c(el)
+      }
+    }
+  }
+  clustersdf <- clustersdf %>%
+    add_row(contig = Contig, genes = clusters)
+}
+  
+```
+
+```{r}
+clustersdf <- clustersdf %>%
+  mutate(genomeName = contig) %>%
+  separate(genomeName, into = c("genomeName", "X")) %>%
+  select(-X) %>%
+  group_by(genomeName) %>%
+  mutate(clustername = str_c(str_sub(contig, 1, 8), "_cluster_", 1:length(contig))) %>%
+  unnest(genes) %>%
+  mutate(gene = if_else(
+    genes < 10,
+    str_c(genomeName, "_", "0000", as.character(genes)),
+      if_else(
+        genes > 9 &
+          genes < 100,
+        str_c(genomeName, "_", "000", as.character(genes)),
+        if_else(
+          genes > 99 &
+            genes < 1000,
+          str_c(genomeName, "_", "00", as.character(genes)),
+          str_c(genomeName, "_", "0", as.character(genes))
+        )
+      )
+    )
+  ) %>%
+  #select(-genes) %>%
+  left_join(dbcan_filtered %>% rename(gene = HMM))
+  
+```
+
+
+
+```{r, fig.height = 12, fig.width = 12}
+GTcount <- clustersdf %>%
+  group_by(clustername) %>%
+  summarise(count = n()) %>%
+  left_join(clustersdf %>% select(clustername, Assembly, speciesClade)) %>%
+  distinct()
+
+GTcount %>%
+  ggplot(aes(x = clustername, y = count)) +
+  geom_col() +
+  facet_wrap(speciesClade~Assembly, scales = "free_x")
+  
+```
+
+How are they distributed? 
+
+```{r}
+GTcount %>%
+  group_by(count) %>%
+  summarise(countcount = n()) %>%
+  mutate(percentage = countcount/sum(countcount))
+```
+
+Most of the GTs are found solo, while 247 were detected with two. Only 6 showed a GT count > 4. Same but per species
+
+```{r}
+GTcount %>%
+  group_by(speciesClade, count) %>%
+  summarise(countcount = n()) %>%
+  mutate(percentage = countcount/sum(countcount))
+```
+
+Min and max per species?
+
+```{r}
+GTcount %>%
+  group_by(speciesClade) %>%
+  summarise(min = min(count), max = max(count))
+```
+
+
+```{r, fig.height = 12, fig.width = 12}
+clustersdf %>%
+  filter(clustername %in% (GTcount %>% filter(count > 1) %>% pull(clustername))) %>%
+  ggplot(aes(x = clustername)) +
+  geom_bar(aes(fill = queryName)) +
+  facet_wrap(speciesClade~Assembly, scales = "free_x") +
+  scale_fill_brewer(palette = "Paired")
+  
+```
+
+Other visualisation
+
+```{r, fig.height=12, fig.width = 10}
+integer_breaks <- function(n = 2, ...) {
+  breaker <- pretty_breaks(n, ...)
+  function(x) {
+     breaks <- breaker(x)
+     breaks[breaks == floor(breaks)]
+  }
+}
+
+myLabels <- GTcount %>%
+  left_join(annotation) %>%
+  mutate(Name = paste0('italic(', genus ,')~italic(', species, ')~', strain)) %>%
+  pull(Name) %>%
+  unique 
+
+GTcount %>%
+  mutate(Assembly_renamed = mapvalues(GTcount$Assembly, unique(GTcount$Assembly),
+                                  parse(text = myLabels))) %>%
+  mutate(speciesClade = factor(speciesClade, levels = speciesCladeOrder)) %>%
+  mutate(count = if_else(count == 1, "1 GT", str_c(count, " GTs in cluster"))) %>%
+  ggplot(aes(x = Assembly_renamed)) +
+  geom_bar(fill = "#d95f02", col = "#d95f02") +
+  coord_flip() +
+  facet_grid(speciesClade~count, scales = "free", space = "free") +
+  scale_x_discrete(expand=c(0,0), labels = function(x) parse(text = x)) +
+  scale_y_continuous(breaks = integer_breaks()) +
+  xlab("") +
+  ylab("Number of clusters") +
+  ggtitle("GT cluster analysis") +
+  theme(strip.text.y = element_blank(),
+        strip.text.x = element_text(angle = 90, face = "bold", size = 10, hjust = 0),
+        strip.background = element_blank())
+
+ggsave( "GT_cluster.svg", last_plot(), units = "cm", width = 21, height = 29.7)
+  
+```
+
+

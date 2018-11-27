@@ -1,0 +1,266 @@
+Assembly	genus	species	strain	Labname	fromNCBI	inLGC	speciesClade
+55-16			AMBF114	AMB-F114	isolate	TRUE	mesenteroides
+AMB-F197			AMBF197	AMB-F197	isolate	TRUE	Unclassified 2
+AMB-F249			AMBF249	AMB-F249	isolate	TRUE	Unclassified 2
+CJ2-48-10			AMBF300	AMB-F300	isolate	TRUE	brevis
+CJ2-48-12			AMBF302	AMB-F302	isolate	TRUE	paracasei
+CJ2-48-2			AMBF292	AMB-F292	isolate	TRUE	plantarum
+CJ2-48-4			AMBF294	AMB-F294	isolate	TRUE	plantarum
+CJ2-48-8			AMBF298	AMB-F298	isolate	TRUE	brevis
+CJ2-D13-1			AMBF156	AMB-F156	isolate	TRUE	brevis
+CJ2-D13-11			AMBF166	AMB-F166	isolate	TRUE	mesenteroides
+CJ2-D13-3			AMBF158	AMB-F158	isolate	TRUE	brevis
+CJ2-D13-5			AMBF160	AMB-F160	isolate	TRUE	mesenteroides
+CJ2-D13-7			AMBF162	AMB-F162	isolate	TRUE	brevis
+CJ2-D13-9			AMBF164	AMB-F164	isolate	TRUE	mesenteroides
+CJ2-D20-10			AMBF189	AMB-F189	isolate	TRUE	brevis
+CJ2-D20-12			AMBF191	AMB-F191	isolate	TRUE	brevis
+CJ2-D20-2			AMBF181	AMB-F181	isolate	TRUE	brevis
+CJ2-D20-6			AMBF185	AMB-F185	isolate	TRUE	brevis
+CJ2-D20-8			AMBF187	AMB-F187	isolate	TRUE	brevis
+FP-S01			AMBF192	AMB-F192	isolate	TRUE	brevis
+FP-S05			AMBF196	AMB-F196	isolate	TRUE	paracasei
+FP-S07			AMBF198	AMB-F198	isolate	TRUE	Unclassified 2
+FP-S09			AMBF200	AMB-F200	isolate	TRUE	brevis
+FP-S10			AMBF201	AMB-F201	isolate	TRUE	brevis
+FP-S12			AMBF203	AMB-F203	isolate	TRUE	paracasei
+FP-S14			AMBF205	AMB-F205	isolate	TRUE	plantarum
+FP-S15			AMBF206	AMB-F206	isolate	TRUE	plantarum
+FP-S16			AMBF207	AMB-F207	isolate	TRUE	plantarum
+FP-S18			AMBF209	AMB-F209	isolate	TRUE	Unclassified 2
+FP-S21			AMBF212	AMB-F212	isolate	TRUE	brevis
+FP-S29			AMBF220	AMB-F220	isolate	TRUE	plantarum
+FP-S30			AMBF221	AMB-F221	isolate	TRUE	brevis
+FP-S34			AMBF225	AMB-F225	isolate	TRUE	plantarum
+FP-S36			AMBF227	AMB-F227	isolate	TRUE	plantarum
+FP-S38			AMBF229	AMB-F229	isolate	TRUE	brevis
+FP-S40			AMBF231	AMB-F231	isolate	TRUE	citreum
+FP-S44			AMBF235	AMB-F235	isolate	TRUE	plantarum
+FP-S46			AMBF237	AMB-F237	isolate	TRUE	brevis
+FP-S48			AMBF239	AMB-F239	isolate	TRUE	plantarum
+FP-S50			AMBF241	AMB-F241	isolate	TRUE	plantarum
+FP-S53			AMBF244	AMB-F244	isolate	TRUE	brevis
+FP-S54			AMBF245	AMB-F245	isolate	TRUE	plantarum
+FP-S56			AMBF247	AMB-F247	isolate	TRUE	plantarum
+FP-S60			AMBF251	AMB-F251	isolate	TRUE	plantarum
+FP-S62			AMBF253	AMB-F253	isolate	TRUE	brevis
+FP-S64			AMBF255	AMB-F255	isolate	TRUE	plantarum
+FP-S66			AMBF257	AMB-F257	isolate	TRUE	plantarum
+FP-S68			AMBF259	AMB-F259	isolate	TRUE	plantarum
+FP-S70			AMBF261	AMB-F261	isolate	TRUE	plantarum
+FP-S72			AMBF263	AMB-F263	isolate	TRUE	plantarum
+FP-S73			AMBF264	AMB-F264	isolate	TRUE	plantarum
+FP-S84			AMBF275	AMB-F275	isolate	TRUE	Unclassified 1
+FP-S86			AMBF277	AMB-F277	isolate	TRUE	plantarum
+FP-S88			AMBF279	AMB-F279	isolate	TRUE	paraplantarum
+GCA_000014425	Lactobacillus	gasseri	ATCC~33323	NA	NCBIrefgenome	TRUE	NA
+GCA_000014445	Leuconostoc	mesenteroides	ATCC~8293	NA	NCBIrefgenome	TRUE	mesenteroides
+GCA_000014525	Lactobacillus	paracasei	ATCC~334	NA	NCBIrefgenome	TRUE	paracasei
+GCA_000026405	Leuconostoc	citreum	KM20	NA	NCBIrefgenome	TRUE	citreum
+GCA_000026505	Lactobacillus	rhamnosus	GG~(ATCC~53103)	NA	NCBIrefgenome	TRUE	NA
+GCA_000092505	Leuconostoc	kimchii	IMSNU~11154	NA	NCBIrefgenome	TRUE	NA
+GCA_000165675	Leuconostoc	fallax	KCTC~3537	NA	NCBIrefgenome	TRUE	NA
+GCA_000166715	Leuconostoc	gelidum	KCTC~3527	NA	NCBIrefgenome	TRUE	NA
+GCA_000179875	Leuconostoc	lactis	KCTC~3773	NA	NCBIrefgenome	TRUE	NA
+GCA_000196855	Leuconostoc	gelidum	type~strain:~LMG~18811	NA	NCBIrefgenome	TRUE	NA
+GCA_000203855	Lactobacillus	plantarum	WCFS1	NA	NCBIrefgenome	TRUE	plantarum
+GCA_000241055	Oenococcus	kitaharae	DSM~17330	NA	NCBIrefgenome	TRUE	NA
+GCA_000245815	Dolosigranulum	pigrum	ATCC~51524	NA	NCBIrefgenome	FALSE	NA
+GCA_000300135	Leuconostoc	carnosum	JB16	NA	NCBIrefgenome	TRUE	NA
+GCA_000498955	Lactobacillus	fabifermentans	DSM~21115	NA	NCBIrefgenome	TRUE	NA
+GCA_000829055	Lactobacillus	casei	ATCC~393	NA	NCBIrefgenome	TRUE	NA
+GCA_001433735	Lactobacillus	casei	DSM~20011	NA	NCBIrefgenome	TRUE	paracasei
+GCA_001433745	Lactobacillus	zeae	DSM~20178	NA	NCBIrefgenome	TRUE	NA
+GCA_001433755	Lactobacillus	pentosus	DSM~20314	NA	NCBIrefgenome	TRUE	NA
+GCA_001433765	Lactobacillus	coryniformis	DSM~20001	NA	NCBIrefgenome	TRUE	NA
+GCA_001433815	Lactobacillus	pobuzihii	KCTC~13174	NA	NCBIrefgenome	TRUE	NA
+GCA_001433825	Lactobacillus	kunkeei	DSM~12361	NA	NCBIrefgenome	TRUE	NA
+GCA_001433855	Lactobacillus	brevis	DSM~20054	NA	NCBIrefgenome	TRUE	brevis
+GCA_001433875	Lactobacillus	delbrueckii	DSM~20074	NA	NCBIrefgenome	TRUE	NA
+GCA_001433895	Lactobacillus	acidophilus	DSM~20079	NA	NCBIrefgenome	TRUE	NA
+GCA_001433915	Lactobacillus	pasteurii	DSM~23907	NA	NCBIrefgenome	TRUE	NA
+GCA_001433975	Lactobacillus	johnsonii	ATCC~33200	NA	NCBIrefgenome	TRUE	NA
+GCA_001433985	Lactobacillus	amylovorus	DSM~20531	NA	NCBIrefgenome	TRUE	NA
+GCA_001433995	Lactobacillus	kimchicus	JCM~15530	NA	NCBIrefgenome	TRUE	NA
+GCA_001434005	Lactobacillus	crispatus	DSM~20584	NA	NCBIrefgenome	TRUE	NA
+GCA_001434055	Lactobacillus	parabrevis	ATCC~53295	NA	NCBIrefgenome	TRUE	NA
+GCA_001434065	Lactobacillus	sakei	DSM~20017	NA	NCBIrefgenome	TRUE	NA
+GCA_001434095	Lactobacillus	fructivorans	DSM~20203	NA	NCBIrefgenome	TRUE	NA
+GCA_001434115	Lactobacillus	zymae	DSM~19395	NA	NCBIrefgenome	TRUE	NA
+GCA_001434135	Lactobacillus	kisonensis	DSM~19906	NA	NCBIrefgenome	TRUE	NA
+GCA_001434145	Lactobacillus	otakiensis	DSM~19908	NA	NCBIrefgenome	TRUE	NA
+GCA_001434175	Lactobacillus	plantarum	CGMCC~1.2437	NA	NCBIrefgenome	TRUE	plantarum
+GCA_001434195	Lactobacillus	kefiranofaciens	DSM~10550	NA	NCBIrefgenome	TRUE	NA
+GCA_001434225	Lactobacillus	nagelii	DSM~13675	NA	NCBIrefgenome	TRUE	NA
+GCA_001434255	Lactobacillus	diolivorans	DSM~14421	NA	NCBIrefgenome	TRUE	NA
+GCA_001434275	Lactobacillus	mindensis	DSM~14500	NA	NCBIrefgenome	TRUE	NA
+GCA_001434295	Lactobacillus	versmoldensis	DSM~14857	NA	NCBIrefgenome	TRUE	NA
+GCA_001434315	Lactobacillus	oligofermentans	DSM~15707	NA	NCBIrefgenome	TRUE	NA
+GCA_001434335	Lactobacillus	kalixensis	DSM~16043	NA	NCBIrefgenome	TRUE	NA
+GCA_001434365	Lactobacillus	gastricus	DSM~16045	NA	NCBIrefgenome	TRUE	NA
+GCA_001434395	Lactobacillus	hammesii	DSM~16381	NA	NCBIrefgenome	TRUE	NA
+GCA_001434405	Lactobacillus	apodemi	DSM~16634	NA	NCBIrefgenome	TRUE	NA
+GCA_001434435	Lactobacillus	kitasatonis	DSM~16761	NA	NCBIrefgenome	TRUE	NA
+GCA_001434455	Lactobacillus	hayakitensis	DSM~18933	NA	NCBIrefgenome	TRUE	NA
+GCA_001434465	Lactobacillus	oris	DSM~4864	NA	NCBIrefgenome	TRUE	NA
+GCA_001434475	Lactobacillus	suebicus	DSM~5007	NA	NCBIrefgenome	TRUE	NA
+GCA_001434515	Lactobacillus	hamsteri	DSM~5661	NA	NCBIrefgenome	TRUE	NA
+GCA_001434535	Lactobacillus	animalis	DSM~20602	NA	NCBIrefgenome	TRUE	NA
+GCA_001434555	Lactobacillus	amylotrophicus	DSM~20534	NA	NCBIrefgenome	TRUE	NA
+GCA_001434575	Lactobacillus	bifermentans	DSM~20003	NA	NCBIrefgenome	TRUE	NA
+GCA_001434585	Lactobacillus	crustorum	JCM~15951	NA	NCBIrefgenome	TRUE	NA
+GCA_001434615	Lactobacillus	reuteri	DSM~20016	NA	NCBIrefgenome	TRUE	NA
+GCA_001434635	Lactobacillus	delbrueckii	DSM~20072	NA	NCBIrefgenome	TRUE	NA
+GCA_001434655	Lactobacillus	hilgardii	DSM~20176	NA	NCBIrefgenome	TRUE	NA
+GCA_001434665	Lactobacillus	tucceti	DSM~20183	NA	NCBIrefgenome	TRUE	NA
+GCA_001434695	Lactobacillus	algidus	DSM~15638	NA	NCBIrefgenome	TRUE	NA
+GCA_001434705	Lactobacillus	nasuensis	JCM~17158	NA	NCBIrefgenome	TRUE	NA
+GCA_001434735	Lactobacillus	buchneri	DSM~20057	NA	NCBIrefgenome	TRUE	NA
+GCA_001434745	Lactobacillus	alimentarius	DSM~20249	NA	NCBIrefgenome	TRUE	NA
+GCA_001434775	Lactobacillus	farciminis	DSM~20184	NA	NCBIrefgenome	TRUE	NA
+GCA_001434785	Lactobacillus	namurensis	DSM~19117	NA	NCBIrefgenome	TRUE	NA
+GCA_001434815	Lactobacillus	equicursoris	DSM~19284	NA	NCBIrefgenome	TRUE	NA
+GCA_001434835	Lactobacillus	acidifarinae	DSM~19394	NA	NCBIrefgenome	TRUE	NA
+GCA_001434845	Lactobacillus	hordei	DSM~19519	NA	NCBIrefgenome	TRUE	NA
+GCA_001434855	Lactobacillus	paralimentarius	DSM~19674	NA	NCBIrefgenome	TRUE	NA
+GCA_001434895	Lactobacillus	odoratitofui	DSM~19909	NA	NCBIrefgenome	TRUE	NA
+GCA_001434915	Lactobacillus	capillatus	DSM~19910	NA	NCBIrefgenome	TRUE	NA
+GCA_001434935	Lactobacillus	uvarum	DSM~19971	NA	NCBIrefgenome	TRUE	NA
+GCA_001434945	Lactobacillus	helveticus	CGMCC~1.1877	NA	NCBIrefgenome	TRUE	NA
+GCA_001434975	Lactobacillus	gallinarum	DSM~10532	NA	NCBIrefgenome	TRUE	NA
+GCA_001434985	Lactobacillus	paralimentarius	DSM~13238	NA	NCBIrefgenome	TRUE	NA
+GCA_001435015	Lactobacillus	iners	DSM~13335	NA	NCBIrefgenome	TRUE	NA
+GCA_001435035	Lactobacillus	manihotivorans	DSM~13343	NA	NCBIrefgenome	TRUE	NA
+GCA_001435065	Lactobacillus	fuchuensis	DSM~14340	NA	NCBIrefgenome	TRUE	NA
+GCA_001435095	Lactobacillus	spicheri	DSM~15429	NA	NCBIrefgenome	TRUE	NA
+GCA_001435115	Lactobacillus	paracollinoides	DSM~15502	NA	NCBIrefgenome	TRUE	NA
+GCA_001435135	Lactobacillus	rossiae	DSM~15814	NA	NCBIrefgenome	TRUE	NA
+GCA_001435155	Lactobacillus	pantheris	DSM~15945	NA	NCBIrefgenome	TRUE	NA
+GCA_001435165	Lactobacillus	saerimneri	DSM~16049	NA	NCBIrefgenome	TRUE	NA
+GCA_001435195	Lactobacillus	satsumensis	DSM~16230	NA	NCBIrefgenome	TRUE	NA
+GCA_001435215	Lactobacillus	plantarum	DSM~16365	NA	NCBIrefgenome	TRUE	plantarum
+GCA_001435235	Lactobacillus	ghanensis	DSM~18630	NA	NCBIrefgenome	TRUE	NA
+GCA_001435245	Lactobacillus	equigenerosi	DSM~18793	NA	NCBIrefgenome	TRUE	NA
+GCA_001435275	Lactobacillus	kefiranofaciens	DSM~5016	NA	NCBIrefgenome	TRUE	NA
+GCA_001435315	Lactobacillus	parabuchneri	DSM~5707	NA	NCBIrefgenome	TRUE	NA
+GCA_001435325	Lactobacillus	intestinalis	DSM~6629	NA	NCBIrefgenome	TRUE	NA
+GCA_001435345	Lactobacillus	pontis	DSM~8475	NA	NCBIrefgenome	TRUE	NA
+GCA_001435375	Lactobacillus	aviarius	DSM~20653	NA	NCBIrefgenome	TRUE	NA
+GCA_001435395	Lactobacillus	vini	DSM~20605	NA	NCBIrefgenome	TRUE	NA
+GCA_001435405	Lactobacillus	rhamnosus	DSM~20021	NA	NCBIrefgenome	TRUE	NA
+GCA_001435425	Lactobacillus	coryniformis	DSM~20004	NA	NCBIrefgenome	TRUE	NA
+GCA_001435445	Lactobacillus	paralimentarius	DSM~13961	NA	NCBIrefgenome	TRUE	NA
+GCA_001435475	Lactobacillus	antri	DSM~16041	NA	NCBIrefgenome	TRUE	NA
+GCA_001435495	Lactobacillus	curvatus	DSM~20019	NA	NCBIrefgenome	TRUE	NA
+GCA_001435505	Lactobacillus	futsaii	JCM~17355	NA	NCBIrefgenome	TRUE	NA
+GCA_001435525	Lactobacillus	koreensis	JCM~16448	NA	NCBIrefgenome	TRUE	NA
+GCA_001435555	Lactobacillus	nodensis	DSM~19682	NA	NCBIrefgenome	TRUE	NA
+GCA_001435575	Lactobacillus	sunkii	DSM~19904	NA	NCBIrefgenome	TRUE	NA
+GCA_001435585	Lactobacillus	perolens	DSM~12744	NA	NCBIrefgenome	TRUE	NA
+GCA_001435655	Lactobacillus	paraplantarum	DSM~10667	NA	NCBIrefgenome	TRUE	paraplantarum
+GCA_001435665	Lactobacillus	amylolyticus	DSM~11664	NA	NCBIrefgenome	TRUE	NA
+GCA_001435695	Lactobacillus	psittaci	DSM~15354	NA	NCBIrefgenome	TRUE	NA
+GCA_001435715	Lactobacillus	sakei	DSM~15831	NA	NCBIrefgenome	TRUE	NA
+GCA_001435735	Lactobacillus	equi	DSM~15833	NA	NCBIrefgenome	TRUE	NA
+GCA_001435755	Lactobacillus	acidipiscis	DSM~15836	NA	NCBIrefgenome	TRUE	NA
+GCA_001435775	Lactobacillus	ingluviei	DSM~15946	NA	NCBIrefgenome	TRUE	NA
+GCA_001435795	Lactobacillus	delbrueckii	DSM~15996	NA	NCBIrefgenome	TRUE	NA
+GCA_001435815	Lactobacillus	nantensis	DSM~16982	NA	NCBIrefgenome	TRUE	NA
+GCA_001435835	Lactobacillus	concavus	DSM~17758	NA	NCBIrefgenome	TRUE	NA
+GCA_001435875	Lactobacillus	farraginis	DSM~18382	NA	NCBIrefgenome	TRUE	NA
+GCA_001435895	Lactobacillus	parafarraginis	DSM~18390	NA	NCBIrefgenome	TRUE	NA
+GCA_001435915	Lactobacillus	vaginalis	DSM~5837	NA	NCBIrefgenome	TRUE	NA
+GCA_001435935	Lactobacillus	panis	DSM~6035	NA	NCBIrefgenome	TRUE	NA
+GCA_001435955	Lactobacillus	salivarius	DSM~20555	NA	NCBIrefgenome	TRUE	NA
+GCA_001435975	Lactobacillus	collinoides	DSM~20515	NA	NCBIrefgenome	TRUE	NA
+GCA_001435995	Lactobacillus	ozensis	DSM~23829	NA	NCBIrefgenome	TRUE	NA
+GCA_001436015	Lactobacillus	murinus	DSM~20452	NA	NCBIrefgenome	TRUE	NA
+GCA_001436025	Lactobacillus	mucosae	DSM~13345	NA	NCBIrefgenome	TRUE	NA
+GCA_001436035	Lactobacillus	sanfranciscensis	DSM~20451	NA	NCBIrefgenome	TRUE	NA
+GCA_001436045	Lactobacillus	frumenti	DSM~13145	NA	NCBIrefgenome	TRUE	NA
+GCA_001436095	Lactobacillus	dextrinicus	DSM~20335	NA	NCBIrefgenome	TRUE	NA
+GCA_001436115	Lactobacillus	brantae	DSM~23927	NA	NCBIrefgenome	TRUE	NA
+GCA_001436125	Lactobacillus	hominis	DSM~23910	NA	NCBIrefgenome	TRUE	NA
+GCA_001436135	Lactobacillus	thailandensis	DSM~22698	NA	NCBIrefgenome	TRUE	NA
+GCA_001436185	Lactobacillus	amylophilus	DSM~20533	NA	NCBIrefgenome	TRUE	NA
+GCA_001436215	Lactobacillus	agilis	DSM~20509	NA	NCBIrefgenome	TRUE	NA
+GCA_001436225	Lactobacillus	sharpeae	DSM~20505	NA	NCBIrefgenome	TRUE	NA
+GCA_001436255	Lactobacillus	rapi	DSM~19907	NA	NCBIrefgenome	TRUE	NA
+GCA_001436275	Lactobacillus	oeni	DSM~19972	NA	NCBIrefgenome	TRUE	NA
+GCA_001436295	Lactobacillus	vaccinostercus	DSM~20634	NA	NCBIrefgenome	TRUE	NA
+GCA_001436305	Lactobacillus	ultunensis	DSM~16047	NA	NCBIrefgenome	TRUE	NA
+GCA_001436315	Lactobacillus	aviarius	DSM~20655	NA	NCBIrefgenome	TRUE	NA
+GCA_001436325	Lactobacillus	harbinensis	DSM~16991	NA	NCBIrefgenome	TRUE	NA
+GCA_001436375	Lactobacillus	composti	DSM~18527	NA	NCBIrefgenome	TRUE	NA
+GCA_001436385	Lactobacillus	paracasei	DSM~5622	NA	NCBIrefgenome	TRUE	paracasei
+GCA_001436395	Lactobacillus	malefermentans	DSM~5705	NA	NCBIrefgenome	TRUE	NA
+GCA_001436415	Lactobacillus	graminis	DSM~20719	NA	NCBIrefgenome	TRUE	NA
+GCA_001436455	Lactobacillus	jensenii	DSM~20557	NA	NCBIrefgenome	TRUE	NA
+GCA_001436475	Lactobacillus	ruminis	DSM~20403	NA	NCBIrefgenome	TRUE	NA
+GCA_001436485	Lactobacillus	paracasei	DSM~20258	NA	NCBIrefgenome	TRUE	paracasei
+GCA_001436505	Lactobacillus	rennini	DSM~20253	NA	NCBIrefgenome	TRUE	NA
+GCA_001436535	Lactobacillus	mali	DSM~20444	NA	NCBIrefgenome	TRUE	NA
+GCA_001436555	Lactobacillus	senioris	DSM~24302	NA	NCBIrefgenome	TRUE	NA
+GCA_001436575	Lactobacillus	gigeriorum	DSM~23908	NA	NCBIrefgenome	TRUE	NA
+GCA_001436595	Lactobacillus	similis	DSM~23365	NA	NCBIrefgenome	TRUE	NA
+GCA_001436605	Lactobacillus	floricola	DSM~23037	NA	NCBIrefgenome	TRUE	NA
+GCA_001436615	Lactobacillus	camelliae	DSM~22697	NA	NCBIrefgenome	TRUE	NA
+GCA_001436645	Lactobacillus	florum	DSM~22689	NA	NCBIrefgenome	TRUE	NA
+GCA_001436675	Lactobacillus	senmaizukei	DSM~21775	NA	NCBIrefgenome	TRUE	NA
+GCA_001436695	Lactobacillus	taiwanensis	DSM~21401	NA	NCBIrefgenome	TRUE	NA
+GCA_001436705	Lactobacillus	sucicola	DSM~21376	NA	NCBIrefgenome	TRUE	NA
+GCA_001436735	Lactobacillus	cacaonum	DSM~21116	NA	NCBIrefgenome	TRUE	NA
+GCA_001436755	Lactobacillus	aquaticus	DSM~21051	NA	NCBIrefgenome	TRUE	NA
+GCA_001436775	Lactobacillus	acetotolerans	DSM~20749	NA	NCBIrefgenome	TRUE	NA
+GCA_001436795	Pediococcus	acidilactici	AS1.2696	NA	NCBIrefgenome	TRUE	NA
+GCA_001436805	Lactobacillus	selangorensis	ATCC~BAA-66	NA	NCBIrefgenome	TRUE	NA
+GCA_001436835	Lactobacillus	fermentum	DSM~20055	NA	NCBIrefgenome	TRUE	NA
+GCA_001436855	Lactobacillus	plantarum	DSM~13273	NA	NCBIrefgenome	TRUE	plantarum
+GCA_001436865	Weissella	halotolerans	DSM~20190	NA	NCBIrefgenome	TRUE	NA
+GCA_001436895	Weissella	confusa	DSM~20196	NA	NCBIrefgenome	TRUE	NA
+GCA_001436905	Pediococcus	claussenii	DSM~14800	NA	NCBIrefgenome	TRUE	NA
+GCA_001436935	Lactobacillus	fructivorans	DSM~20350	NA	NCBIrefgenome	TRUE	NA
+GCA_001436945	Lactobacillus	acidipiscis	DSM~15353	NA	NCBIrefgenome	TRUE	NA
+GCA_001436965	Kandleria	vitulina	DSM~20405	NA	NCBIrefgenome	FALSE	NA
+GCA_001436985	Lactobacillus	homohiochii	DSM~20571	NA	NCBIrefgenome	TRUE	NA
+GCA_001437015	Atopobium	minutum	DSM~20586	NA	NCBIrefgenome	FALSE	NA
+GCA_001437035	Carnobacterium	maltaromaticum	DSM~20722	NA	NCBIrefgenome	FALSE	NA
+GCA_001437055	Lactobacillus	secaliphilus	DSM~17896	NA	NCBIrefgenome	TRUE	NA
+GCA_001437075	Pediococcus	stilesii	DSM~18001	NA	NCBIrefgenome	TRUE	NA
+GCA_001437085	Carnobacterium	divergens	DSM~20623	NA	NCBIrefgenome	FALSE	NA
+GCA_001437115	Pediococcus	acidilactici	DSM~19927	NA	NCBIrefgenome	TRUE	NA
+GCA_001437125	Lactobacillus	paucivorans	DSM~22467	NA	NCBIrefgenome	TRUE	NA
+GCA_001437155	Lactobacillus	mali	ATCC~27304	NA	NCBIrefgenome	TRUE	NA
+GCA_001437175	Lactobacillus	fructivorans	ATCC~27394	NA	NCBIrefgenome	TRUE	NA
+GCA_001437195	Lactobacillus	delbrueckii	DSM~20081	NA	NCBIrefgenome	TRUE	NA
+GCA_001437205	Lactobacillus	selangorensis	DSM~13344	NA	NCBIrefgenome	TRUE	NA
+GCA_001437235	Lactobacillus	ingluviei	DSM~14792	NA	NCBIrefgenome	TRUE	NA
+GCA_001437255	Pediococcus	damnosus	DSM~20331	NA	NCBIrefgenome	TRUE	NA
+GCA_001437285	Pediococcus	pentosaceus	DSM~20336	NA	NCBIrefgenome	TRUE	NA
+GCA_001437315	Carnobacterium	maltaromaticum	DSM~20342	NA	NCBIrefgenome	FALSE	NA
+GCA_001437335	Lactobacillus	parabuchneri	DSM~15352	NA	NCBIrefgenome	TRUE	NA
+GCA_001437355	Weissella	viridescens	DSM~20410	NA	NCBIrefgenome	TRUE	NA
+GCA_001437365	Lactobacillus	amylovorus	DSM~16698	NA	NCBIrefgenome	TRUE	NA
+GCA_001437405	Pediococcus	ethanolidurans	DSM~22301	NA	NCBIrefgenome	TRUE	NA
+GCA_001437425	Weissella	minor	DSM~20014	NA	NCBIrefgenome	TRUE	NA
+GCA_001437435	Lactobacillus	siliginis	DSM~22696	NA	NCBIrefgenome	TRUE	NA
+GCA_001437465	Lactobacillus	saniviri	DSM~24301	NA	NCBIrefgenome	TRUE	NA
+GCA_001437485	Lactobacillus	delbrueckii	DSM~26046	NA	NCBIrefgenome	TRUE	NA
+GCA_001437505	Lactobacillus	hokkaidonensis	DSM~26202	NA	NCBIrefgenome	TRUE	NA
+GCA_001437515	Lactobacillus	parabrevis	LMG~11984	NA	NCBIrefgenome	TRUE	NA
+GCA_001437535	Lactobacillus	helveticus	LMG~22464	NA	NCBIrefgenome	TRUE	NA
+GCA_001437565	Lactococcus	lactis	LMG~7760	NA	NCBIrefgenome	FALSE	NA
+GCA_001437585	Olsenella	uli	DSM~7084	NA	NCBIrefgenome	FALSE	NA
+GCA_001437605	Pediococcus	argentinicus	DSM~23026	NA	NCBIrefgenome	TRUE	NA
+GCA_001438655	Pediococcus	cellicola	DSM~17757	NA	NCBIrefgenome	TRUE	NA
+GCA_001438685	Lactobacillus	lindneri	DSM~20690	NA	NCBIrefgenome	TRUE	NA
+GCA_001438695	Fructobacillus	fructosus	DSM~20349	NA	NCBIrefgenome	TRUE	NA
+GCA_001438705	Weissella	kandleri	DSM~20593	NA	NCBIrefgenome	TRUE	NA
+GCA_001438725	Pediococcus	inopinatus	DSM~20285	NA	NCBIrefgenome	TRUE	NA
+GCA_001438765	Carnobacterium	maltaromaticum	DSM~20730	NA	NCBIrefgenome	FALSE	NA
+GCA_001438785	Lactobacillus	ceti	DSM~22408	NA	NCBIrefgenome	TRUE	NA
+GCA_001438805	Lactobacillus	kimchiensis	DSM~24716	NA	NCBIrefgenome	TRUE	NA
+GCA_001438825	Lactobacillus	crustorum	LMG~23699	NA	NCBIrefgenome	TRUE	NA
+GCA_001438845	Lactobacillus	xiangfangensis	LMG~26013	NA	NCBIrefgenome	TRUE	NA
+GCA_001438865	Lactobacillus	pobuzihii	NBRC~103219	NA	NCBIrefgenome	TRUE	NA
+GCA_001438885	Atopobium	rimae	DSM~7090	NA	NCBIrefgenome	FALSE	NA

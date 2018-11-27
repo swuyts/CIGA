@@ -1,0 +1,327 @@
+---
+title: "Process QC Output"
+author: "Sander Wuyts"
+date: "04 September 2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+library(ggplot2)
+library(stringr)
+library(tidyverse)
+
+wd = "~/serverUA/sander/carrot_isolates/03_quality_control/"
+
+setwd(wd)
+quastReportFile = "out/transposed_report.tsv" 
+ncbi_summary_file = "../02_download_ncbi_genomes/assembly_summary.txt"
+
+# read quast report file
+report = read.table(quastReportFile, header=T, sep="\t", comment.char="", quote="")
+# column names: replace any number of points by one underscore
+names(report) = str_replace_all(names(report), "\\.+", "_")
+# column names: remove trailing underscore
+names(report) = str_replace(names(report), "\\_$", "")
+# column names: replace X by N (number of...)
+names(report) = str_replace(names(report), "X", "N")
+
+# read NCBI data file
+ncbi_data = read.delim(ncbi_summary_file, sep = "\t", skip = 1) %>%
+  rename(assembly_accession = `X..assembly_accession`)
+# assembly accession numbers: take only part before the dot (to match accession numbers in quast table)
+ncbi_data$assembly_accession = str_match(ncbi_data$assembly_accession, "(.*)( |\\.)")[,2]
+
+# Read in checkM data
+checkm <- read_tsv("out_checkm/results.tsv") %>%
+  rename(Assembly = `Bin Id`)
+
+# make super table with all info (ncbi and quast)
+genomeTable = merge(report, ncbi_data, by.x="Assembly", by.y="assembly_accession", all.x=T) %>%
+  left_join(checkm %>% select(-GC))
+
+# make extra column with species name only (no strain names)
+genomeTable <- genomeTable %>%
+  mutate(species = str_match(organism_name, " ([a-z]*)")[,2])
+# give species name "isolate" to the isolate genomes
+genomeTable$species[is.na(genomeTable$species)] = "isolate"
+# make extra column with genus name only
+genomeTable <- genomeTable %>%
+  mutate(strain = str_split_fixed(infraspecific_name, pattern = "=", n = 2)[,2]) %>%
+  mutate(strain = if_else(strain == "", "isolate", strain)) %>%
+  mutate(genus = str_match(organism_name, "([A-z]*) ")[,2])
+genomeTable$genus[is.na(genomeTable$genus)] = "isolate"
+
+
+
+
+genomeTable <- genomeTable %>% 
+  mutate(species = if_else(str_detect(Assembly,"Mudanjiangensis"), "mudanjiangensis", 
+                                         if_else(str_detect(Assembly, "Herbarum"), "herbarum", species))) %>%
+  mutate(fromNCBI = if_else(species == "isolate", "isolate", 
+                            if_else(species == "mudanjiangensis", "inhousRefgenome", "NCBIrefgenome")))
+
+```
+
+# Data distribution
+
+FASTQ-filepairs: 70
+Assembled genomes incl. L mudan: 66
+
+```{r}
+genomeTable %>%
+  group_by(fromNCBI) %>%
+  summarise(count = n())
+```
+
+
+
+```{r}
+genomeTable %>%
+  ggplot(aes(x = fromNCBI, fill = fromNCBI)) +
+  geom_bar() 
+```
+
+
+# N50 and total genome length
+
+Let's check the distribution of the N50 values:
+
+```{r, echo=FALSE}
+ggplot(data=genomeTable, aes(x=N50)) +
+  geom_density(aes(group=NULL)) +
+  geom_jitter(aes(y=(-0.05 - 0.1*ifelse(species=="isolate", 1, 0)),
+                  col=fromNCBI, width=0, height=0.01),alpha=0.8) +
+  scale_x_log10() +
+  scale_color_brewer(palette="Paired", name="own isolate") +
+  geom_vline(xintercept=2000)
+```
+
+There's a few isolates with a very short N50. Let's put a cutoff of N50  > 2000 bp to exclude these
+
+Let's plot the quality parameters: N50 values and number of N's per 100.000 bases. 
+
+```{r, echo=FALSE}
+ggplot(data=genomeTable, aes(x=N_N_s_per_100_kbp, y=N50, col=fromNCBI)) +
+  geom_point() +
+  scale_y_log10() +
+  scale_x_log10() +
+  scale_color_brewer(palette="Paired", name="species") +
+  geom_hline(yintercept=2000) +
+  geom_vline(xintercept=1400)
+```
+
+Let's put a cutoff at around 1400.
+
+```{r}
+# Make extra variable with selected genomes
+genomeTable$useGenome = genomeTable$N50>2000 & genomeTable$N_N_s_per_100_kbp<1400
+
+# Summary
+sprintf("total number of genomes: %i", nrow(report))
+sprintf("number of genomes that pass QC: %i", sum(genomeTable$useGenome))
+```
+
+Now we can plot genome parameters: GC content and genome length: 
+
+```{r, echo=FALSE}
+ggplot(data=genomeTable, aes(x=Total_length, y=GC, col=fromNCBI)) +
+  geom_point(alpha=0.8) +
+  scale_color_brewer(palette="Paired", name="species") +
+  geom_vline(xintercept=4e6)
+```
+
+There's one with a much bigger genome size than the rest.
+
+```{r}
+ggplot(data=genomeTable, aes(x=fromNCBI, y=Total_length, col=fromNCBI)) +
+  geom_jitter(height=0, width=0.3) +
+  scale_color_brewer(palette="Paired", name="species") + 
+  theme(axis.text.x = element_text(angle=45,hjust=1,vjust=1))
+```
+
+Let's also remove this one
+
+```{r}
+# Make extra variable with selected genomes
+genomeTable$useGenome = genomeTable$useGenome & genomeTable$Total_length <4e+06
+
+# Summary
+sprintf("total number of genomes: %i", nrow(report))
+sprintf("number of genomes that pass QC: %i", sum(genomeTable$useGenome))
+```
+
+# Completeness
+
+I've also ran checkm to check for completeness!
+
+```{r}
+ggplot(data=genomeTable, aes(x=fromNCBI, y=Completeness, col=useGenome)) +
+  geom_jitter(height=0, width=0.3) +
+  scale_color_brewer(palette="Paired", name="species") + 
+  theme(axis.text.x = element_text(angle=45,hjust=1,vjust=1)) +
+  geom_hline(yintercept = 95)
+```
+
+Many isolates show a low completeness. Let's remove all of them under 95% completeness!
+
+```{r}
+# Make extra variable with selected genomes
+genomeTable$useGenome = genomeTable$useGenome & genomeTable$Completeness > 95
+
+# Summary
+sprintf("total number of genomes: %i", nrow(report))
+sprintf("number of genomes that pass QC: %i", sum(genomeTable$useGenome))
+```
+
+```{r}
+genomeTable[genomeTable$useGenome,] %>%
+  group_by(fromNCBI) %>%
+  summarise(count = n())
+```
+
+
+```{r}
+genomeTable[genomeTable$useGenome,] %>%
+  ggplot(aes(x = fromNCBI, fill = fromNCBI)) +
+  geom_bar() 
+```
+
+
+
+# Some other standard plots
+
+```{r}
+ggplot(data=genomeTable[genomeTable$useGenome,], aes(x=fromNCBI, y=GC, col=fromNCBI)) +
+  geom_jitter(height=0, width=0.3) +
+  scale_color_brewer(palette="Paired", name="species") + 
+  theme(axis.text.x = element_text(angle=45,hjust=1,vjust=1))
+```
+
+```{r}
+ggplot(data=genomeTable[genomeTable$useGenome,], aes(x=fromNCBI, y=N_contigs, col=fromNCBI)) +
+  geom_jitter(height=0, width=0.3) +
+  scale_color_brewer(palette="Paired", name="species") + 
+  theme(axis.text.x = element_text(angle=45,hjust=1,vjust=1))
+```
+
+```{r}
+ggplot(data=genomeTable[genomeTable$useGenome,], aes(x=fromNCBI, y=Largest_contig, col=fromNCBI)) +
+  geom_jitter(height=0, width=0.3) +
+  scale_color_brewer(palette="Paired", name="species") + 
+  theme(axis.text.x = element_text(angle=45,hjust=1,vjust=1))
+```
+
+```{r}
+ggplot(data=genomeTable[genomeTable$useGenome,], aes(x=fromNCBI, y=Total_length, col=fromNCBI)) +
+  geom_jitter(height=0, width=0.3) +
+  scale_color_brewer(palette="Paired", name="species") + 
+  theme(axis.text.x = element_text(angle=45,hjust=1,vjust=1))
+```
+
+```{r}
+ggplot(data=genomeTable[genomeTable$useGenome,], aes(x=GC, y=Total_length, col=fromNCBI)) +
+  geom_point() +
+  scale_color_brewer(palette="Paired", name="species") 
+```
+
+# Statistics for paper
+
+hier toevoegen optie in LGC?
+```{r}
+LGC_genera <- c("Lactobacillus",
+                "Leuconostoc",
+                "Weissella",
+                "Pediococcus",
+                "Fructobacillus",
+                "Oenococcus",
+                "isolate")
+
+genomeTable <- genomeTable %>%
+  mutate(inLGC = genus %in% LGC_genera)
+```
+
+Amount per species
+
+```{r}
+genomeTable %>%
+  filter(useGenome == T) %>%
+  filter(inLGC == T) %>%
+  mutate(taxid = as.character(taxid)) %>%
+  pull(taxid) %>%
+  unique() %>%
+  length()
+```
+
+# How many different fermentations?
+
+```{r}
+origins <- read_csv("labnames_and_origins.csv") %>%
+  separate(Origin, into = c("Fermentation", "Day", "deleteme")) %>%
+  select(-deleteme) %>%
+  unite("Origin", Fermentation, Day, sep = " ") %>%
+  mutate(PrevName = str_replace(PrevName, "/", "-"),
+         PrevName = str_replace(PrevName, " ", "-"))
+```
+
+```{r}
+genomeTable_origins <- genomeTable %>%
+  filter(useGenome == T,
+         fromNCBI == "isolate") %>%
+  select(Assembly) %>%
+  left_join(origins %>% rename(Assembly = PrevName)) %>%
+  mutate(Labname = if_else(Assembly == "AMB-F197", "AMB-F197",
+                           if_else(Assembly == "AMB-F249", "AMB-F249", Labname))) %>%
+  mutate(Origin = if_else(Assembly == "AMB-F197", "FP02 D30",
+                           if_else(Assembly == "AMB-F249", "FP27 D30", Origin)))
+```
+
+```{r}
+genomeTable_origins %>%
+  group_by(Origin) %>%
+  summarise(numberOfFermentations = n()) %>%
+  ggplot(aes(x = reorder(Origin, - numberOfFermentations), y = numberOfFermentations)) +
+  geom_col() +
+  coord_flip()
+```
+
+
+```{r}
+genomeTable_origins %>%
+  pull(Origin) %>%
+  unique() %>%
+  length()
+```
+
+29 Different fermentations.
+
+```{r}
+genomeTable <- genomeTable %>% 
+  left_join(genomeTable_origins)
+```
+
+
+Make the genometable file!
+
+```{r, echo=FALSE}
+# Write file with all information of selected genomes
+write.table(genomeTable[genomeTable$useGenome,], file="genomeTable_full.tsv",
+            quote=F, col.names=T, row.names=F, sep="\t")
+
+# Write table accession numbers and species names of selected genomes
+write.table(genomeTable[genomeTable$useGenome,c("Assembly", "species")], file="genomeTable.tsv",
+            quote=F, col.names=F, row.names=F, sep="\t")
+
+# Write table with selected genomes only
+write.table(genomeTable[genomeTable$useGenome,"Assembly"], file="genomesToUse.txt",
+            quote=F, col.names=F, row.names=F, sep="\t")
+```
+
+
+```{r}
+genomeTable %>%
+  filter(useGenome == T,
+         fromNCBI == "isolate") %>%
+  ggplot(aes(y = Origin, x = GC)) +
+  geom_jitter()
+```
+
